@@ -1,14 +1,10 @@
-package com.ritesh.eCommerce.services;
+package com.ritesh.eCommerce.services.users;
 
-import com.ritesh.eCommerce.enums.UserRole;
-import com.ritesh.eCommerce.models.User;
-import com.ritesh.eCommerce.repository.UserRepository;
+import com.ritesh.eCommerce.models.users.User;
+import com.ritesh.eCommerce.repository.users.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

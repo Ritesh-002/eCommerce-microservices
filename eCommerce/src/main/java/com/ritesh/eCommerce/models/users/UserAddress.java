@@ -1,4 +1,4 @@
-package com.ritesh.eCommerce.models;
+package com.ritesh.eCommerce.models.users;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

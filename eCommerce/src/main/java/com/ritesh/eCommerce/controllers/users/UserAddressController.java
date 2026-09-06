@@ -1,9 +1,8 @@
-package com.ritesh.eCommerce.controllers;
-import com.ritesh.eCommerce.dto.userAddress.UserAddressMapper;
-import com.ritesh.eCommerce.dto.userAddress.UserAddressRequestDTO;
-import com.ritesh.eCommerce.dto.userAddress.UserAddressResponseDTO;
-import com.ritesh.eCommerce.models.UserAddress;
-import com.ritesh.eCommerce.services.UserAddressService;
+package com.ritesh.eCommerce.controllers.users;
+import com.ritesh.eCommerce.dto.users.userAddress.UserAddressMapper;
+import com.ritesh.eCommerce.dto.users.userAddress.UserAddressRequestDTO;
+import com.ritesh.eCommerce.dto.users.userAddress.UserAddressResponseDTO;
+import com.ritesh.eCommerce.services.users.UserAddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

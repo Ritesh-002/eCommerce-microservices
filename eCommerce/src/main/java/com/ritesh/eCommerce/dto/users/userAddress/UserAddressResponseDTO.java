@@ -1,9 +1,11 @@
-package com.ritesh.eCommerce.dto.userAddress;
+package com.ritesh.eCommerce.dto.users.userAddress;
 
+import com.ritesh.eCommerce.enums.UserRole;
 import lombok.Data;
 
 @Data
-public class UserAddressRequestDTO {
+public class UserAddressResponseDTO {
+    private Long id;
     private Integer houseNo;
     private String street;
     private String area;

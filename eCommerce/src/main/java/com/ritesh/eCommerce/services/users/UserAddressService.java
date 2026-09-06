@@ -1,14 +1,12 @@
-package com.ritesh.eCommerce.services;
-import com.ritesh.eCommerce.models.User;
-import com.ritesh.eCommerce.models.UserAddress;
-import com.ritesh.eCommerce.repository.UserAddressRepository;
-import com.ritesh.eCommerce.repository.UserRepository;
+package com.ritesh.eCommerce.services.users;
+import com.ritesh.eCommerce.models.users.User;
+import com.ritesh.eCommerce.models.users.UserAddress;
+import com.ritesh.eCommerce.repository.users.UserAddressRepository;
+import com.ritesh.eCommerce.repository.users.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

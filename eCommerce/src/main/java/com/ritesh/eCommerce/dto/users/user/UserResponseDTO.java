@@ -1,4 +1,4 @@
-package com.ritesh.eCommerce.dto.user;
+package com.ritesh.eCommerce.dto.users.user;
 
 import com.ritesh.eCommerce.enums.UserRole;
 import lombok.Data;

@@ -1,10 +1,10 @@
-package com.ritesh.eCommerce.controllers;
+package com.ritesh.eCommerce.controllers.users;
 
-import com.ritesh.eCommerce.dto.user.UserMappers;
-import com.ritesh.eCommerce.dto.user.UserRequestDTO;
-import com.ritesh.eCommerce.dto.user.UserResponseDTO;
-import com.ritesh.eCommerce.models.User;
-import com.ritesh.eCommerce.services.UserService;
+import com.ritesh.eCommerce.dto.users.user.UserMappers;
+import com.ritesh.eCommerce.dto.users.user.UserRequestDTO;
+import com.ritesh.eCommerce.dto.users.user.UserResponseDTO;
+import com.ritesh.eCommerce.models.users.User;
+import com.ritesh.eCommerce.services.users.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

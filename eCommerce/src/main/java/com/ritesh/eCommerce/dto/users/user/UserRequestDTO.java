@@ -1,4 +1,4 @@
-package com.ritesh.eCommerce.dto.user;
+package com.ritesh.eCommerce.dto.users.user;
 
 import lombok.Data;
 

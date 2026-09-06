@@ -1,7 +1,7 @@
-package com.ritesh.eCommerce.dto.userAddress;
+package com.ritesh.eCommerce.dto.users.userAddress;
 
 
-import com.ritesh.eCommerce.models.UserAddress;
+import com.ritesh.eCommerce.models.users.UserAddress;
 import org.springframework.stereotype.Component;
 
 @Component
