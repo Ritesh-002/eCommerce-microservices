@@ -1,10 +1,12 @@
 package com.ritesh.eCommerce.controllers.products;
 
-import com.ritesh.eCommerce.dto.users.user.UserMappers;
+import com.ritesh.eCommerce.dto.products.product.ProductMapper;
+import com.ritesh.eCommerce.dto.products.product.ProductRequestDTO;
+import com.ritesh.eCommerce.dto.products.product.ProductResponseDTO;
 import com.ritesh.eCommerce.dto.users.user.UserRequestDTO;
-import com.ritesh.eCommerce.dto.users.user.UserResponseDTO;
+import com.ritesh.eCommerce.models.products.Product;
 import com.ritesh.eCommerce.models.users.User;
-import com.ritesh.eCommerce.services.users.UserService;
+import com.ritesh.eCommerce.services.products.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,37 +16,37 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
-    private final UserService userService;
-    private final UserMappers userMappers;
+    private final ProductService productService;
+    private final ProductMapper productMapper;
 
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
-        List<User> allUsers = userService.fetchAllUsers();
-        List<UserResponseDTO> allUserResponseDTO = allUsers.stream().map(userMappers::toUserResponseDTO).toList();
-        return new ResponseEntity<>(allUserResponseDTO, HttpStatus.OK);
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
+        List<Product> allProducts = productService.fetchAllProducts();
+        List<ProductResponseDTO> allProductResponseDTO = allProducts.stream().map(productMapper::toProductResponseDTO).toList();
+        return new ResponseEntity<>(allProductResponseDTO, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) {
-        return userService.getUser(id)
-                .map(u -> new ResponseEntity<>(userMappers.toUserResponseDTO(u), HttpStatus.OK))
+    public ResponseEntity<ProductResponseDTO> getProduct(@PathVariable Long id) {
+        return productService.getProduct(id)
+                .map(p -> new ResponseEntity<>(productMapper.toProductResponseDTO(p), HttpStatus.OK))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody UserRequestDTO userRequestDTO) {
-        User user = userMappers.toUserEntity(userRequestDTO);
-        return userService.addUser(user) ?
-                ResponseEntity.ok("User added successfully") :
+    public ResponseEntity<String> createProduct(@RequestBody ProductRequestDTO productRequestDTO) {
+        Product product = productMapper.toProductEntity(productRequestDTO);
+        return productService.addProduct(product) ?
+                ResponseEntity.ok("Product added successfully") :
                 new ResponseEntity<>("Operation failed! Please try again", HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateUser(@RequestBody UserRequestDTO userRequestDTO, @PathVariable Long id) {
-        User user = userMappers.toUserEntity(userRequestDTO);
-        return userService.editUser(user, id) ? ResponseEntity.ok("User updated successfully") : new ResponseEntity<>("User failed to udpate", HttpStatus.SERVICE_UNAVAILABLE);
+    public ResponseEntity<String> updateProduct(@RequestBody ProductRequestDTO productRequestDTO, @PathVariable Long id) {
+        Product product = productMapper.toProductEntity(productRequestDTO);
+        return productService.editProduct(product, id) ? ResponseEntity.ok("Product updated successfully") : new ResponseEntity<>("Product failed to update", HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
