@@ -1,7 +1,6 @@
 package com.ritesh.eCommerce.services.products;
 
 import com.ritesh.eCommerce.models.products.Product;
-import com.ritesh.eCommerce.models.users.UserAddress;
 import com.ritesh.eCommerce.repository.products.ProductRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +19,7 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public boolean addUser(Product product) {
+    public boolean addProduct(Product product) {
         productRepository.save(product);
         return true;
     }

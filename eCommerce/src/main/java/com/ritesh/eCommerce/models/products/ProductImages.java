@@ -1,11 +1,12 @@
 package com.ritesh.eCommerce.models.products;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.ritesh.eCommerce.models.users.User;
+
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "product_images")
+@Data
 public class ProductImages {
 
     @Id
