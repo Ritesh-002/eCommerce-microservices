@@ -4,10 +4,12 @@ import com.ritesh.eCommerce.dto.products.productImage.ProductImageRequestDTO;
 import com.ritesh.eCommerce.dto.products.productImage.ProductImageResponseDTO;
 import com.ritesh.eCommerce.models.products.Product;
 import com.ritesh.eCommerce.models.products.ProductImages;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class ProductMapper {
     public ProductResponseDTO toProductResponseDTO(Product product) {
         ProductResponseDTO productResponseDTO = new ProductResponseDTO();

@@ -8,6 +8,7 @@ import com.ritesh.eCommerce.models.products.Product;
 import com.ritesh.eCommerce.models.users.User;
 import com.ritesh.eCommerce.services.products.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,5 +49,10 @@ public class ProductController {
     public ResponseEntity<String> updateProduct(@RequestBody ProductRequestDTO productRequestDTO, @PathVariable Long id) {
         Product product = productMapper.toProductEntity(productRequestDTO);
         return productService.editProduct(product, id) ? ResponseEntity.ok("Product updated successfully") : new ResponseEntity<>("Product failed to update", HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> removeProduct(@PathVariable Long id) {
+        return productService.deleteProduct(id) ? ResponseEntity.ok("Product deletion successful") : new ResponseEntity<>("Product failed to delete! please try again", HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
