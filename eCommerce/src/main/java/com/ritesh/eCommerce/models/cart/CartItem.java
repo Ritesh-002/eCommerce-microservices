@@ -1,20 +1,26 @@
 package com.ritesh.eCommerce.models.cart;
 
 import com.ritesh.eCommerce.models.products.Product;
-import com.ritesh.eCommerce.models.users.User;
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "user_cart")
 @Data
-public class UserCart {
+@Table(name = "cart_items")
+public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-    private User user;
+
+    private Integer quantity;
 
 }
