@@ -2,6 +2,7 @@ package com.ritesh.eCommerce.models.users;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ritesh.eCommerce.enums.UserRole;
+import com.ritesh.eCommerce.models.cart.Cart;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,9 @@ public class User {
     private String lastName;
     private String email;
     private String contact;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Cart cart;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
