@@ -1,5 +1,9 @@
 package com.ritesh.eCommerce.controllers.cart;
 
+import com.ritesh.eCommerce.dto.cart.CartItemResponseDTO;
+import com.ritesh.eCommerce.dto.cart.CartMapper;
+import com.ritesh.eCommerce.dto.cart.CartRequestDTO;
+import com.ritesh.eCommerce.dto.cart.CartResponseDTO;
 import com.ritesh.eCommerce.models.cart.Cart;
 import com.ritesh.eCommerce.models.cart.CartItem;
 import com.ritesh.eCommerce.services.cart.CartService;
@@ -14,26 +18,28 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
 
     private final CartService cartService;
+    private final CartMapper cartMapper;
 
     @GetMapping
-    public ResponseEntity<Cart> getUserCart(@PathVariable Long userId) {
+    public ResponseEntity<CartResponseDTO> getUserCart(@PathVariable Long userId) {
         Cart cart = cartService.getCart(userId);
+
         if (cart == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(cartMapper.toCartResponseDTO(cart));
     }
 
     @PostMapping
-    public ResponseEntity<CartItem> addItemToCart(@PathVariable Long userId, @RequestBody Long productId, @RequestBody Integer qty) {
-        CartItem cartItem = cartService.addToCart(userId, productId, qty);
+    public ResponseEntity<CartItemResponseDTO> addItemToCart(@PathVariable Long userId, @RequestBody CartRequestDTO cartRequestDTO) {
+        CartItem cartItem = cartService.addToCart(userId, cartRequestDTO);
 
         if (cartItem == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(cartItem);
+        return ResponseEntity.ok(cartMapper.toCartItemResponseDTO(cartItem));
     }
 
     @PutMapping("/items/{cartItemId}")

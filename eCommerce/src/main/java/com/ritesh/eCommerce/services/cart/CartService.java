@@ -1,5 +1,6 @@
 package com.ritesh.eCommerce.services.cart;
 
+import com.ritesh.eCommerce.dto.cart.CartMapper;
 import com.ritesh.eCommerce.dto.cart.CartRequestDTO;
 import com.ritesh.eCommerce.models.cart.Cart;
 import com.ritesh.eCommerce.models.cart.CartItem;
@@ -22,14 +23,15 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final CartMapper cartMapper;
 
     public Cart getCart(Long userId) {
         return cartRepository.findCartByUserId(userId);
     }
 
-    public CartItem addToCart(Long userId, Long productId, Integer qty) {
+    public CartItem addToCart(Long userId, CartRequestDTO cartRequestDTO) {
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findById(cartRequestDTO.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         Cart existingCart = cartRepository.findCartByUserId(userId);
@@ -40,20 +42,16 @@ public class CartService {
 
             Optional<CartItem> existingItem = existingCart.getCartItems()
                     .stream()
-                    .filter(item -> item.getProduct().getId().equals(productId))
+                    .filter(item -> item.getProduct().getId().equals(cartRequestDTO.getProductId()))
                     .findFirst();
 
             if (existingItem.isPresent()) {
 
                 cartItem = existingItem.get();
-                cartItem.setQuantity(cartItem.getQuantity() + qty);
+                cartItem.setQuantity(cartItem.getQuantity() + cartRequestDTO.getQty());
 
             } else {
-
-                cartItem = new CartItem();
-                cartItem.setProduct(product);
-                cartItem.setQuantity(qty);
-                cartItem.setCart(existingCart);
+                cartItem = cartMapper.toCartItemEntity(cartRequestDTO, product, existingCart);
 
                 existingCart.getCartItems().add(cartItem);
             }
@@ -66,11 +64,7 @@ public class CartService {
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             cart.setUser(user);
-
-            cartItem = new CartItem();
-            cartItem.setProduct(product);
-            cartItem.setQuantity(qty);
-            cartItem.setCart(cart);
+            cartItem = cartMapper.toCartItemEntity(cartRequestDTO, product, cart);
 
             cart.getCartItems().add(cartItem);
 

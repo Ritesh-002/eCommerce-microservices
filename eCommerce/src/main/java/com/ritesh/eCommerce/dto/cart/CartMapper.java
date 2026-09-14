@@ -23,7 +23,7 @@ public class CartMapper {
 
             CartItemResponseDTO itemResponse = new CartItemResponseDTO();
 
-            itemResponse.setCartId(item.getId());
+            itemResponse.setCartItemId(item.getId());
             itemResponse.setProductId(item.getProduct().getId());
             itemResponse.setProductName(item.getProduct().getName());
             itemResponse.setPrice(item.getProduct().getPrice());
@@ -37,7 +37,19 @@ public class CartMapper {
         return response;
     }
 
-    public CartItem toCartEntity(CartRequestDTO request, Product product, Cart cart) {
+    public CartItemResponseDTO toCartItemResponseDTO(CartItem cartItem) {
+        CartItemResponseDTO cartItemResponseDTO = new CartItemResponseDTO();
+
+        cartItemResponseDTO.setCartItemId(cartItem.getId());
+        cartItemResponseDTO.setProductId(cartItem.getProduct().getId());
+        cartItemResponseDTO.setProductName(cartItem.getProduct().getName());
+        cartItemResponseDTO.setPrice(cartItem.getProduct().getPrice());
+        cartItemResponseDTO.setQty(cartItem.getQuantity());
+
+        return cartItemResponseDTO;
+    }
+
+    public CartItem toCartItemEntity(CartRequestDTO request, Product product, Cart cart) {
 
         CartItem item = new CartItem();
 
