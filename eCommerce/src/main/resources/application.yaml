@@ -2,7 +2,12 @@ logging:
   level:
     org.springframework.web: DEBUG
     org.springframework.web.servlet.mvc.method.annotation: TRACE
-
+    org:
+      hibernate:
+        SQL=DEBUG:
+        orm:
+          JDBC:
+            bind=TRACE:
 spring:
   application:
     name: eCommerce

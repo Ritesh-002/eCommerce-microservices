@@ -27,8 +27,8 @@ public class User {
     private String email;
     private String contact;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Cart cart;
+//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private Cart cart;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -12,6 +12,7 @@ import com.ritesh.eCommerce.repository.products.ProductRepository;
 import com.ritesh.eCommerce.repository.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -55,6 +56,7 @@ public class CartService {
 
                 existingCart.getCartItems().add(cartItem);
             }
+            cartRepository.save(existingCart);
 
         } else {
 
@@ -74,6 +76,7 @@ public class CartService {
         return cartItem;
     }
 
+    @Transactional
     public boolean deleteCart(Long userId) {
         Cart cart = cartRepository.findCartByUserId(userId);
 
