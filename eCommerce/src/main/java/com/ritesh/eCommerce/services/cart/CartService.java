@@ -88,6 +88,7 @@ public class CartService {
         return false;
     }
 
+    @Transactional
     public boolean removeFromCart(Long userId, Long cartItemId) {
         Cart existingCart = cartRepository.findCartByUserId(userId);
         if(existingCart != null) {
@@ -97,7 +98,7 @@ public class CartService {
                     .findFirst();
 
             if (existingItem.isPresent()) {
-
+                existingCart.getCartItems().remove(existingItem.get());
                 cartItemRepository.deleteById(cartItemId);
                 return true;
 
@@ -108,6 +109,7 @@ public class CartService {
         return false;
     }
 
+    @Transactional
     public CartItem changeQuantity(Long userId, Long cartItemId, Integer qty) {
 
         Cart existingCart = cartRepository.findCartByUserId(userId);
