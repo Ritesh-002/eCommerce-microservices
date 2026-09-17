@@ -5,6 +5,7 @@ import com.ritesh.eCommerce.models.cart.CartItem;
 import com.ritesh.eCommerce.models.order.Order;
 import com.ritesh.eCommerce.models.order.OrderItem;
 import com.ritesh.eCommerce.models.users.User;
+import org.springframework.stereotype.Component;
 
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class OrderMapper {
     public OrderResponseDTO toOrderResponseDTO(Order order) {
 
@@ -29,7 +31,7 @@ public class OrderMapper {
             orderItemResponseDTOS.add(toOrderItemResponseDTO(orderItem));
         }
 
-        orderResponseDTO.setAllOrderItemsResponse(orderItemResponseDTOS);
+        orderResponseDTO.setAllOrderItems(orderItemResponseDTOS);
 
         return orderResponseDTO;
 
@@ -62,9 +64,7 @@ public class OrderMapper {
         return orderItem;
 
     }
-    public Order toOrderEntity(User user, List<OrderItem> orderItems) {
-        Order order = new Order();
-
+    public void toOrderEntity(Order order, User user, List<OrderItem> orderItems) {
         order.setTotalAmount(orderItems.stream()
                 .map(OrderItem::getSubTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
@@ -72,7 +72,5 @@ public class OrderMapper {
         order.setPlacedOn(LocalDateTime.now());
         order.setUser(user);
         order.setOrderItems(orderItems);
-
-        return order;
     }
 }

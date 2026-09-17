@@ -15,6 +15,6 @@ public class OrderResponseDTO {
     private BigDecimal totalAmount;
     private OrderStatus status;
     private LocalDateTime placedOn;
-    private List<OrderItemResponseDTO> allOrderItemsResponse = new ArrayList<>();
+    private List<OrderItemResponseDTO> allOrderItems = new ArrayList<>();
 
 }

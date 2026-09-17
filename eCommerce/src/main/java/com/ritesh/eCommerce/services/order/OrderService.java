@@ -1,6 +1,6 @@
 package com.ritesh.eCommerce.services.order;
 
-import com.ritesh.eCommerce.enums.OrderStatus;
+import com.ritesh.eCommerce.dto.order.OrderMapper;
 import com.ritesh.eCommerce.models.cart.Cart;
 import com.ritesh.eCommerce.models.cart.CartItem;
 import com.ritesh.eCommerce.models.order.Order;
@@ -15,8 +15,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,9 +24,11 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
 
     @Transactional
     public Order placeOrder(Long userId) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -43,8 +43,8 @@ public class OrderService {
         List<CartItem> cartItems = cart.getCartItems();
 
         List<OrderItem> orderItems = cartItems.stream().map(item -> {
-            Integer orderedQty = item.getQuantity();
 
+            Integer orderedQty = item.getQuantity();
             Product product = item.getProduct();
 
             if (product.getQty() < orderedQty) {
@@ -52,28 +52,16 @@ public class OrderService {
                         "Insufficient stock for product: " + product.getName()
                 );
             }
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(item.getProduct());
-            orderItem.setPriceAtCheckout(product.getPrice());
-            orderItem.setQty(orderedQty);
-            orderItem.setSubTotal(product.getPrice()
-                    .multiply(BigDecimal.valueOf(item.getQuantity())));
 
-            orderItem.setOrder(order);
-
+            OrderItem orderItem = orderMapper.toOrderItemEntity(order, item);
 
             product.setQty(product.getQty() - orderedQty);
 
             return orderItem;
+
         }).toList();
 
-        order.setTotalAmount(orderItems.stream()
-                .map(OrderItem::getSubTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
-        order.setStatus(OrderStatus.CONFIRMED);
-        order.setPlacedOn(LocalDateTime.now());
-        order.setUser(user);
-        order.setOrderItems(orderItems);
+        orderMapper.toOrderEntity(order, user, orderItems);
 
         orderRepository.save(order);
         cartRepository.delete(cart);
