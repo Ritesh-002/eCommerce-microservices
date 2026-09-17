@@ -53,10 +53,11 @@ public class OrderService {
                 );
             }
             OrderItem orderItem = new OrderItem();
-            orderItem.setQty(item.getQuantity());
-            orderItem.setSubTotal(item.getProduct().getPrice()
-                    .multiply(BigDecimal.valueOf(item.getQuantity())));
             orderItem.setProduct(item.getProduct());
+            orderItem.setPriceAtCheckout(product.getPrice());
+            orderItem.setQty(orderedQty);
+            orderItem.setSubTotal(product.getPrice()
+                    .multiply(BigDecimal.valueOf(item.getQuantity())));
 
             orderItem.setOrder(order);
 

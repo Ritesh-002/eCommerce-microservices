@@ -23,6 +23,8 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    private BigDecimal priceAtCheckout;
+
     private Integer qty;
 
     private BigDecimal subTotal;
