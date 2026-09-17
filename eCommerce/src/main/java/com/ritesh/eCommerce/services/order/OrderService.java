@@ -28,7 +28,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public void placeOrder(Long userId) {
+    public Order placeOrder(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -76,6 +76,8 @@ public class OrderService {
 
         orderRepository.save(order);
         cartRepository.delete(cart);
+
+        return order;
     }
 
     public List<Order> getOrders(Long userId) {
