@@ -3,12 +3,23 @@ server:
 
 spring:
   datasource:
-    url: jdbc:h2:mem:test
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://localhost:5433/product_db
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  jpa:
+    database: POSTGRESQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+#      url: jdbc:h2:mem:test
+#      driver-class-name: org.h2.Driver
+#      username: sa
+#      password:
+#
+#    h2:
+#      console:
+#        enabled: true
+#        path: /h2-console
