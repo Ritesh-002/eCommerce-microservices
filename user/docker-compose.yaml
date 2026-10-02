@@ -18,9 +18,8 @@ services:
       retries: 5
     restart: unless-stopped
 
-  backend:
+  user-service:
     image: riteshchugh/user-app:latest
-    container_name: user-backend
     ports:
       - "8082:8080"
     environment:
