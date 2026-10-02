@@ -122,12 +122,12 @@ public class OrderService {
                 .stream()
                 .map(item -> {
 
-                    ProductResponseDTO product =
-                            productClient.reserveProductQuantity(
+                    productClient.reserveProductQuantity(
                                     item.getProductId(),
                                     item.getQty()
                             );
 
+                    ProductResponseDTO product = productClient.getProduct(item.getProductId());
                     return orderMapper.toOrderItemEntity(
                             order,
                             item,

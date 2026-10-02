@@ -13,7 +13,7 @@ public class UserClient {
     public UserResponseDTO getUser(Long userId) {
         return restClient
                 .get()
-                .uri("http://localhost:8082/api/v1/users/{userId}", userId)
+                .uri("http://localhost:8082/api/v1/users/{id}", userId)
                 .retrieve()
                 .body(UserResponseDTO.class);
     }

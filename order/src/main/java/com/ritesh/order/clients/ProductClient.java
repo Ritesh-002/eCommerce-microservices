@@ -12,21 +12,25 @@ public class ProductClient {
     private final RestClient restClient;
 
     public ProductResponseDTO getProduct(Long productId) {
-        return restClient
+        ProductResponseDTO response = restClient
                 .get()
-                .uri("http://localhost:8081/api/v1/products/{productId}", productId)
+                .uri("http://localhost:8081/api/v1/products/{id}", productId)
                 .retrieve()
                 .body(ProductResponseDTO.class);
+
+        System.out.println("PRODUCT SERVICE RESPONSE:");
+        System.out.println(response);
+        return response;
     }
 
-    public ProductResponseDTO reserveProductQuantity(Long productId, Integer qty) {
+    public void reserveProductQuantity(Long productId, Integer qty) {
 
         StockReserveRequestDTO stockReserveRequestDTO = new StockReserveRequestDTO();
         stockReserveRequestDTO.setQty(qty);
 
-        return restClient
+        restClient
                 .post()
-                .uri("http://localhost:8081/api/v1/products/{productId}/reserve", productId)
+                .uri("http://localhost:8081/api/v1/products/{id}/reserve", productId)
                 .body(stockReserveRequestDTO)
                 .retrieve()
                 .body(ProductResponseDTO.class);

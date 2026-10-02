@@ -61,9 +61,11 @@ public class OrderMapper {
         OrderItem orderItem = new OrderItem();
 
         orderItem.setOrder(order);
-
+        System.out.println("Product ID: " + product.getId());
+        System.out.println("Product ID from Cart item: " + cartItem.getProductId());
+        System.out.println("Product name from product item: " + product.getName());
         orderItem.setProductId(cartItem.getProductId());
-        orderItem.setProductName(product.getProductName());
+        orderItem.setProductName(product.getName());
 
         orderItem.setQty(cartItem.getQty());
 
