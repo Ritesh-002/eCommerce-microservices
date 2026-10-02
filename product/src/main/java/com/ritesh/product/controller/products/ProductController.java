@@ -3,9 +3,11 @@ package com.ritesh.product.controller.products;
 import com.ritesh.product.dto.products.product.ProductMapper;
 import com.ritesh.product.dto.products.product.ProductRequestDTO;
 import com.ritesh.product.dto.products.product.ProductResponseDTO;
+import com.ritesh.product.dto.products.product.ReserveStockRequestDTO;
 import com.ritesh.product.models.products.Product;
 import com.ritesh.product.service.products.ProductService;
 import lombok.RequiredArgsConstructor;
+//import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,20 @@ public class ProductController {
         return productService.addProduct(product) ?
                 ResponseEntity.ok("Product added successfully") :
                 new ResponseEntity<>("Operation failed! Please try again", HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @PostMapping("/{id}/reserve")
+    public ResponseEntity<ProductResponseDTO> reserveStock(
+            @PathVariable Long id,
+            @RequestBody ReserveStockRequestDTO request) {
+
+        ProductResponseDTO product =
+                productService.reserveProductQuantity(
+                        id,
+                        request.getQty()
+                );
+
+        return ResponseEntity.ok(product);
     }
 
     @PutMapping("/{id}")

@@ -18,9 +18,8 @@ services:
       retries: 5
     restart: unless-stopped
 
-  backend:
+  product-service:
     image: riteshchugh/product-app:latest
-    container_name: product-backend
     ports:
       - "8081:8080"
     environment:
