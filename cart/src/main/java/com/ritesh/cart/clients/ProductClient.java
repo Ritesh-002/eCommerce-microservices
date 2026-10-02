@@ -12,6 +12,7 @@ public class ProductClient {
 
     public ProductResponseDTO getProduct(Long productId) {
         return restClient.get()
+//                .uri("http://product-service:8080/api/v1/products/{id}", productId)
                 .uri("http://localhost:8081/api/v1/products/{id}", productId)
                 .retrieve()
                 .body(ProductResponseDTO.class);
