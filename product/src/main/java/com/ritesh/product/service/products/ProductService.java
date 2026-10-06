@@ -1,13 +1,21 @@
 package com.ritesh.product.service.products;
 
 import com.ritesh.product.dto.products.product.ProductMapper;
+import com.ritesh.product.dto.products.product.ProductRequestDTO;
 import com.ritesh.product.dto.products.product.ProductResponseDTO;
+import com.ritesh.product.exceptions.InsufficientStockException;
 import com.ritesh.product.exceptions.ProductNotFoundException;
 import com.ritesh.product.models.products.Product;
 import com.ritesh.product.repository.products.ProductRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,8 +26,9 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public List<Product> fetchAllProducts() {
-        return productRepository.findAll();
+    public List<ProductResponseDTO> fetchAllProducts() {
+        List<Product> allProducts = productRepository.findAll();
+        return allProducts.stream().map(productMapper::toProductResponseDTO).toList();
     }
 
     public ProductResponseDTO getProductById(Long id) {
@@ -33,28 +42,59 @@ public class ProductService {
         return productMapper.toProductResponseDTO(product);
     }
 
-    public boolean addProduct(Product product) {
-        productRepository.save(product);
-        return true;
+    @Transactional
+    public ProductResponseDTO addProduct(ProductRequestDTO request) {
+        Product product = productMapper.toProductEntity(request);
+        Product savedProduct = productRepository.save(product);
+        return productMapper.toProductResponseDTO(savedProduct);
     }
 
-    public boolean editProduct(Product product, Long id) {
-        Product productToEdit = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+    @Transactional
+    public ProductResponseDTO editProduct(
+            Long id,
+            ProductRequestDTO request) {
 
-        if(product.getName() != null) productToEdit.setName(product.getName());
-        if(product.getDescription() != null) productToEdit.setDescription(product.getDescription());
-        if(product.getCategory() != null) productToEdit.setCategory(product.getCategory());
-        if(product.getQty() != null) productToEdit.setQty(product.getQty());
-        if(product.getPrice() != null) productToEdit.setPrice(product.getPrice());
-        if(product.getBrand() != null) productToEdit.setBrand(product.getBrand());
+        Product product = productRepository.findById(id)
+                .orElseThrow(() ->
+                        new ProductNotFoundException(
+                                "Product with id " + id + " not found"
+                        )
+                );
 
-        productRepository.save(productToEdit);
-        return true;
+        if (request.getName() != null) {
+            product.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            product.setDescription(request.getDescription());
+        }
+        if (request.getCategory() != null) {
+            product.setCategory(request.getCategory());
+        }
+        if (request.getQty() != null) {
+            product.setQty(request.getQty());
+        }
+        if (request.getPrice() != null) {
+            product.setPrice(request.getPrice());
+        }
+        if (request.getBrand() != null) {
+            product.setBrand(request.getBrand());
+        }
+        Product updatedProduct = productRepository.save(product);
+
+        return productMapper.toProductResponseDTO(updatedProduct);
     }
 
-    public boolean deleteProduct(Long id) {
-        productRepository.findById(id).ifPresent(product -> productRepository.deleteById(id));
-        return true;
+    @Transactional
+    public void deleteProduct(Long id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() ->
+                        new ProductNotFoundException(
+                                "Product with id " + id + " not found"
+                        )
+                );
+
+        productRepository.delete(product);
     }
 
     @Transactional
@@ -64,10 +104,10 @@ public class ProductService {
     ) {
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
         if (product.getQty() < quantity) {
-            throw new RuntimeException("Insufficient stock");
+            throw new InsufficientStockException("Insufficient stock available");
         }
 
         product.setQty(product.getQty() - quantity);

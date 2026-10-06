@@ -25,9 +25,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
-        List<Product> allProducts = productService.fetchAllProducts();
-        List<ProductResponseDTO> allProductResponseDTO = allProducts.stream().map(productMapper::toProductResponseDTO).toList();
-        return new ResponseEntity<>(allProductResponseDTO, HttpStatus.OK);
+        return ResponseEntity.ok(productService.fetchAllProducts());
     }
 
     @GetMapping("/{id}")
@@ -36,11 +34,14 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createProduct(@Valid @RequestBody ProductRequestDTO productRequestDTO) {
-        Product product = productMapper.toProductEntity(productRequestDTO);
-        return productService.addProduct(product) ?
-                ResponseEntity.ok("Product added successfully") :
-                new ResponseEntity<>("Operation failed! Please try again", HttpStatus.SERVICE_UNAVAILABLE);
+    public ResponseEntity<ProductResponseDTO> createProduct(
+            @Valid @RequestBody ProductRequestDTO request) {
+
+        ProductResponseDTO response = productService.addProduct(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     @PostMapping("/{id}/reserve")
@@ -58,13 +59,21 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateProduct(@Valid @RequestBody ProductRequestDTO productRequestDTO, @PathVariable Long id) {
-        Product product = productMapper.toProductEntity(productRequestDTO);
-        return productService.editProduct(product, id) ? ResponseEntity.ok("Product updated successfully") : new ResponseEntity<>("Product failed to update", HttpStatus.SERVICE_UNAVAILABLE);
+    public ResponseEntity<ProductResponseDTO> updateProduct(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductRequestDTO request) {
+
+        ProductResponseDTO response =
+                productService.editProduct(id, request);
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> removeProduct(@PathVariable Long id) {
-        return productService.deleteProduct(id) ? ResponseEntity.ok("Product deletion successful") : new ResponseEntity<>("Product failed to delete! please try again", HttpStatus.SERVICE_UNAVAILABLE);
+    public ResponseEntity<Void> removeProduct(@PathVariable Long id) {
+
+        productService.deleteProduct(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

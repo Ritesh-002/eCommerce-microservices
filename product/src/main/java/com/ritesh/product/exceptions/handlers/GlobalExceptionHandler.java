@@ -1,7 +1,8 @@
 package com.ritesh.product.exceptions.handlers;
 
-import com.ritesh.product.exceptions.DuplicateProductException;
+import com.ritesh.product.exceptions.InsufficientStockException;
 import com.ritesh.product.exceptions.ProductNotFoundException;
+import org.springframework.beans.factory.parsing.Problem;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -61,18 +62,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(DuplicateProductException.class)
-    public ProblemDetail handleDuplicateProductException(DuplicateProductException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                ex.getMessage()
-        );
-        problemDetail.setTitle("Duplicate product detected! Make sure you are not using the existing SKU.");
-        problemDetail.setProperty("code", "PRODUCT_ALREADY_EXISTS");
-
-        return problemDetail;
-    }
-
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleDataIntegrityViolationException(
             DataIntegrityViolationException ex) {
@@ -99,6 +88,18 @@ public class GlobalExceptionHandler {
 
         problemDetail.setTitle("Database Unavailable");
         problemDetail.setProperty("code", "DATABASE_UNAVAILABLE");
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(InstantiationException.class)
+    public ProblemDetail handleInsufficientStockException(InsufficientStockException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("Desired amount of quantity is not available, try to decrease the product quantity");
+        problemDetail.setProperty("code", "STOCK_NOT_AVAILABLE");
 
         return problemDetail;
     }
