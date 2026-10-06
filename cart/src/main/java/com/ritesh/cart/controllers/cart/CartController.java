@@ -22,14 +22,9 @@ public class CartController {
     public ResponseEntity<CartResponseDTO> getUserCart(
             @PathVariable Long userId) {
 
-        CartResponseDTO response =
-                cartService.getCart(userId);
-
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                cartService.getCart(userId)
+        );
     }
 
     @PostMapping

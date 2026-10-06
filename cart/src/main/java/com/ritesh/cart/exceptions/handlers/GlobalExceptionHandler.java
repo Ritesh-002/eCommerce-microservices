@@ -3,6 +3,7 @@ package com.ritesh.cart.exceptions.handlers;
 import com.ritesh.cart.exceptions.CartItemNotFoundException;
 import com.ritesh.cart.exceptions.CartItemOwnershipException;
 import com.ritesh.cart.exceptions.CartNotFoundException;
+import com.ritesh.cart.exceptions.ProductNotFoundException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,18 @@ public class GlobalExceptionHandler {
         );
         problemDetail.setTitle("Cart does not belong to the user!");
         problemDetail.setProperty("code", "CART_NOT_ASSOCIATED");
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ProblemDetail handleProductNotFound(ProductNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("Product not found!");
+        problemDetail.setProperty("code", "PRODUCT_NOT_FOUND");
 
         return problemDetail;
     }

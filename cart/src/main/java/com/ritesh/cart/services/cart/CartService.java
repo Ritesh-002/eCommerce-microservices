@@ -6,6 +6,9 @@ import com.ritesh.cart.dto.cart.CartRequestDTO;
 import com.ritesh.cart.dto.cart.CartResponseDTO;
 import com.ritesh.cart.dto.cart.CartItemResponseDTO;
 import com.ritesh.cart.dto.product.ProductResponseDTO;
+import com.ritesh.cart.exceptions.CartItemNotFoundException;
+import com.ritesh.cart.exceptions.CartNotFoundException;
+import com.ritesh.cart.exceptions.ProductNotFoundException;
 import com.ritesh.cart.models.cart.Cart;
 import com.ritesh.cart.models.cart.CartItem;
 import com.ritesh.cart.repository.cart.CartItemRepository;
@@ -29,7 +32,9 @@ public class CartService {
         Cart cart = cartRepository.findCartByUserId(userId);
 
         if (cart == null) {
-            return null;
+            throw new CartNotFoundException(
+                    "Cart not found for user with id " + userId
+            );
         }
 
         return cartMapper.toCartResponseDTO(cart);
@@ -42,6 +47,12 @@ public class CartService {
 
         ProductResponseDTO product =
                 productClient.getProduct(request.getProductId());
+
+        if (product == null) {
+            throw new ProductNotFoundException(
+                    "Product with id " + request.getProductId() + " not found"
+            );
+        }
 
         Cart existingCart =
                 cartRepository.findCartByUserId(userId);
@@ -101,12 +112,15 @@ public class CartService {
 
     @Transactional
     public void deleteCart(Long userId) {
-
         Cart cart = cartRepository.findCartByUserId(userId);
 
-        if (cart != null) {
-            cartRepository.delete(cart);
+        if (cart == null) {
+            throw new CartNotFoundException(
+                    "Cart not found for user with id " + userId
+            );
         }
+
+        cartRepository.delete(cart);
     }
 
     @Transactional
@@ -114,36 +128,12 @@ public class CartService {
             Long userId,
             Long cartItemId) {
 
-        Cart cart =
-                cartRepository.findCartByUserId(userId);
-
-        if (cart != null) {
-
-            CartItem cartItem = cart.getCartItems()
-                    .stream()
-                    .filter(item ->
-                            item.getId().equals(cartItemId))
-                    .findFirst()
-                    .orElse(null);
-
-            if (cartItem != null) {
-                cart.getCartItems().remove(cartItem);
-                cartItemRepository.deleteById(cartItemId);
-            }
-        }
-    }
-
-    @Transactional
-    public CartItemResponseDTO changeQuantity(
-            Long userId,
-            Long cartItemId,
-            Integer qty) {
-
-        Cart cart =
-                cartRepository.findCartByUserId(userId);
+        Cart cart = cartRepository.findCartByUserId(userId);
 
         if (cart == null) {
-            throw new RuntimeException("Cart not found");
+            throw new CartNotFoundException(
+                    "Cart not found for user with id " + userId
+            );
         }
 
         CartItem cartItem = cart.getCartItems()
@@ -152,7 +142,41 @@ public class CartService {
                         item.getId().equals(cartItemId))
                 .findFirst()
                 .orElseThrow(() ->
-                        new RuntimeException("Cart item not found")
+                        new CartItemNotFoundException(
+                                "Cart item with id " + cartItemId +
+                                        " not found in user's cart"
+                        )
+                );
+
+        cart.getCartItems().remove(cartItem);
+
+        cartItemRepository.delete(cartItem);
+    }
+
+    @Transactional
+    public CartItemResponseDTO changeQuantity(
+            Long userId,
+            Long cartItemId,
+            Integer qty) {
+
+        Cart cart = cartRepository.findCartByUserId(userId);
+
+        if (cart == null) {
+            throw new CartNotFoundException(
+                    "Cart not found for user with id " + userId
+            );
+        }
+
+        CartItem cartItem = cart.getCartItems()
+                .stream()
+                .filter(item ->
+                        item.getId().equals(cartItemId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new CartItemNotFoundException(
+                                "Cart item with id " + cartItemId +
+                                        " not found in user's cart"
+                        )
                 );
 
         cartItem.setQuantity(qty);
