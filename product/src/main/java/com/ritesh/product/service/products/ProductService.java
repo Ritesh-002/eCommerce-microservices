@@ -2,6 +2,7 @@ package com.ritesh.product.service.products;
 
 import com.ritesh.product.dto.products.product.ProductMapper;
 import com.ritesh.product.dto.products.product.ProductResponseDTO;
+import com.ritesh.product.exceptions.ProductNotFoundException;
 import com.ritesh.product.models.products.Product;
 import com.ritesh.product.repository.products.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,15 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Optional<Product> getProduct(Long id) {
-        return productRepository.findById(id);
+    public ProductResponseDTO getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() ->
+                        new ProductNotFoundException(
+                                "Product with id " + id + " not found"
+                        )
+                );
+
+        return productMapper.toProductResponseDTO(product);
     }
 
     public boolean addProduct(Product product) {

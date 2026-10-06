@@ -6,6 +6,7 @@ import com.ritesh.product.dto.products.product.ProductResponseDTO;
 import com.ritesh.product.dto.products.product.ReserveStockRequestDTO;
 import com.ritesh.product.models.products.Product;
 import com.ritesh.product.service.products.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 //import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
@@ -31,13 +32,11 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> getProduct(@PathVariable Long id) {
-        return productService.getProduct(id)
-                .map(p -> new ResponseEntity<>(productMapper.toProductResponseDTO(p), HttpStatus.OK))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 
     @PostMapping
-    public ResponseEntity<String> createProduct(@RequestBody ProductRequestDTO productRequestDTO) {
+    public ResponseEntity<String> createProduct(@Valid @RequestBody ProductRequestDTO productRequestDTO) {
         Product product = productMapper.toProductEntity(productRequestDTO);
         return productService.addProduct(product) ?
                 ResponseEntity.ok("Product added successfully") :
@@ -47,7 +46,7 @@ public class ProductController {
     @PostMapping("/{id}/reserve")
     public ResponseEntity<ProductResponseDTO> reserveStock(
             @PathVariable Long id,
-            @RequestBody ReserveStockRequestDTO request) {
+            @Valid @RequestBody ReserveStockRequestDTO request) {
 
         ProductResponseDTO product =
                 productService.reserveProductQuantity(
@@ -59,7 +58,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateProduct(@RequestBody ProductRequestDTO productRequestDTO, @PathVariable Long id) {
+    public ResponseEntity<String> updateProduct(@Valid @RequestBody ProductRequestDTO productRequestDTO, @PathVariable Long id) {
         Product product = productMapper.toProductEntity(productRequestDTO);
         return productService.editProduct(product, id) ? ResponseEntity.ok("Product updated successfully") : new ResponseEntity<>("Product failed to update", HttpStatus.SERVICE_UNAVAILABLE);
     }
