@@ -1,10 +1,15 @@
 package com.ritesh.user.services.users;
+
+import com.ritesh.user.dto.users.userAddress.UserAddressMapper;
+import com.ritesh.user.dto.users.userAddress.UserAddressRequestDTO;
+import com.ritesh.user.dto.users.userAddress.UserAddressResponseDTO;
 import com.ritesh.user.models.users.User;
 import com.ritesh.user.models.users.UserAddress;
 import com.ritesh.user.repository.users.UserAddressRepository;
 import com.ritesh.user.repository.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,43 +19,105 @@ public class UserAddressService {
 
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
+    private final UserAddressMapper userAddressMapper;
 
-    public List<UserAddress> fetchAddressesByUserId(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getUserAddresses();
+    public List<UserAddressResponseDTO> fetchAddressesByUserId(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        return user.getUserAddresses()
+                .stream()
+                .map(userAddressMapper::toAddressResponseDTO)
+                .toList();
     }
 
-    public boolean addUserAddress(UserAddress address, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public UserAddressResponseDTO addUserAddress(
+            UserAddressRequestDTO request,
+            Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        UserAddress address =
+                userAddressMapper.toAddressEntity(request);
+
         address.setUser(user);
-        userAddressRepository.save(address);
-        return true;
+
+        UserAddress savedAddress =
+                userAddressRepository.save(address);
+
+        return userAddressMapper.toAddressResponseDTO(savedAddress);
     }
 
-    public boolean editUserAddress(UserAddress address, Long userId, Long id) {
-        UserAddress addressToEdit = userAddressRepository.findById(id).orElseThrow(() -> new RuntimeException("Address not found"));
+    @Transactional
+    public UserAddressResponseDTO editUserAddress(
+            UserAddressRequestDTO request,
+            Long userId,
+            Long id) {
+
+        UserAddress addressToEdit =
+                userAddressRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException("Address not found")
+                        );
+
         if (!addressToEdit.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Address does not belong to this user");
+            throw new RuntimeException(
+                    "Address does not belong to this user"
+            );
         }
 
-        if(address.getHouseNo() != null) addressToEdit.setHouseNo(address.getHouseNo());
-        if(address.getStreet() != null) addressToEdit.setStreet(address.getStreet());
-        if(address.getArea() != null) addressToEdit.setArea(address.getArea());
-        if(address.getCity() != null) addressToEdit.setCity(address.getCity());
-        if(address.getState() != null) addressToEdit.setState(address.getState());
-        if(address.getZipCode() != null) addressToEdit.setZipCode(address.getZipCode());
+        if (request.getHouseNo() != null) {
+            addressToEdit.setHouseNo(request.getHouseNo());
+        }
 
-        userAddressRepository.save(addressToEdit);
-        return true;
+        if (request.getStreet() != null) {
+            addressToEdit.setStreet(request.getStreet());
+        }
+
+        if (request.getArea() != null) {
+            addressToEdit.setArea(request.getArea());
+        }
+
+        if (request.getCity() != null) {
+            addressToEdit.setCity(request.getCity());
+        }
+
+        if (request.getState() != null) {
+            addressToEdit.setState(request.getState());
+        }
+
+        if (request.getZipCode() != null) {
+            addressToEdit.setZipCode(request.getZipCode());
+        }
+
+        UserAddress updatedAddress =
+                userAddressRepository.save(addressToEdit);
+
+        return userAddressMapper.toAddressResponseDTO(updatedAddress);
     }
 
-    public boolean deleteUserAddress(Long userId, Long id) {
-        UserAddress address = userAddressRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Address not found"));
+    @Transactional
+    public void deleteUserAddress(Long userId, Long id) {
+
+        UserAddress address =
+                userAddressRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException("Address not found")
+                        );
+
         if (!address.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Address does not belong to this user");
+            throw new RuntimeException(
+                    "Address does not belong to this user"
+            );
         }
+
         userAddressRepository.delete(address);
-        return true;
     }
 }
