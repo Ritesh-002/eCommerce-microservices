@@ -3,6 +3,9 @@ package com.ritesh.user.services.users;
 import com.ritesh.user.dto.users.userAddress.UserAddressMapper;
 import com.ritesh.user.dto.users.userAddress.UserAddressRequestDTO;
 import com.ritesh.user.dto.users.userAddress.UserAddressResponseDTO;
+import com.ritesh.user.exceptions.AddressNotBelongsToUser;
+import com.ritesh.user.exceptions.UserAddressNotFoundException;
+import com.ritesh.user.exceptions.UserNotFoundException;
 import com.ritesh.user.models.users.User;
 import com.ritesh.user.models.users.UserAddress;
 import com.ritesh.user.repository.users.UserAddressRepository;
@@ -25,7 +28,7 @@ public class UserAddressService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found")
+                        new UserNotFoundException("User not found")
                 );
 
         return user.getUserAddresses()
@@ -41,7 +44,7 @@ public class UserAddressService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found")
+                        new UserNotFoundException("User not found")
                 );
 
         UserAddress address =
@@ -64,11 +67,11 @@ public class UserAddressService {
         UserAddress addressToEdit =
                 userAddressRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException("Address not found")
+                                new UserAddressNotFoundException("Address not found")
                         );
 
         if (!addressToEdit.getUser().getId().equals(userId)) {
-            throw new RuntimeException(
+            throw new AddressNotBelongsToUser(
                     "Address does not belong to this user"
             );
         }
@@ -109,11 +112,11 @@ public class UserAddressService {
         UserAddress address =
                 userAddressRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException("Address not found")
+                                new UserAddressNotFoundException("Address not found")
                         );
 
         if (!address.getUser().getId().equals(userId)) {
-            throw new RuntimeException(
+            throw new AddressNotBelongsToUser(
                     "Address does not belong to this user"
             );
         }

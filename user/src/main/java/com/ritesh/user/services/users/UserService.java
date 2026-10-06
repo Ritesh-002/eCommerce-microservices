@@ -3,6 +3,7 @@ package com.ritesh.user.services.users;
 import com.ritesh.user.dto.users.user.UserMappers;
 import com.ritesh.user.dto.users.user.UserRequestDTO;
 import com.ritesh.user.dto.users.user.UserResponseDTO;
+import com.ritesh.user.exceptions.UserNotFoundException;
 import com.ritesh.user.models.users.User;
 import com.ritesh.user.repository.users.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("User with id " + id + " not found")
+                        new UserNotFoundException("User with id " + id + " not found")
                 );
 
         return userMappers.toUserResponseDTO(user);
@@ -51,7 +52,7 @@ public class UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("User with id " + id + " not found")
+                        new UserNotFoundException("User with id " + id + " not found")
                 );
 
         if (request.getFirstName() != null) {

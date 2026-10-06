@@ -23,7 +23,11 @@ public class User {
     private Long id;
     private String firstName;
     private String lastName;
+
+    @Column(unique = true)
     private String email;
+
+    @Column(unique = true)
     private String contact;
 
 //    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
