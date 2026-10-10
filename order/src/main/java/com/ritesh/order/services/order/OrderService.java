@@ -8,17 +8,21 @@ import com.ritesh.order.dto.order.OrderMapper;
 import com.ritesh.order.dto.order.OrderResponseDTO;
 import com.ritesh.order.dto.product.ProductResponseDTO;
 import com.ritesh.order.dto.user.UserResponseDTO;
+import com.ritesh.order.enums.OrderEvents;
 import com.ritesh.order.enums.OrderStatus;
+import com.ritesh.order.events.OrderCreatedEvent;
 import com.ritesh.order.exceptions.CartNotFoundException;
 import com.ritesh.order.exceptions.EmptyCartException;
 import com.ritesh.order.exceptions.UserNotFoundException;
+import com.ritesh.order.models.eventModels.OrderOutboxEvent;
 import com.ritesh.order.models.order.Order;
 import com.ritesh.order.models.order.OrderItem;
 import com.ritesh.order.repository.order.OrderRepository;
-import lombok.AllArgsConstructor;
+import com.ritesh.order.repository.order.eventRepositories.OrderOutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,6 +38,9 @@ public class OrderService {
     private final UserClient userClient;
     private final ProductClient productClient;
     private final CartClient cartClient;
+
+    private final OrderOutboxEventRepository orderOutboxEventRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public OrderResponseDTO placeOrder(Long userId) {
@@ -103,6 +110,23 @@ public class OrderService {
 
         Order savedOrder =
                 orderRepository.save(order);
+
+        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(
+                savedOrder.getId(),
+                savedOrder.getUserId(),
+                savedOrder.getTotalAmount(),
+                savedOrder.getPlacedOn()
+        );
+
+        String payload = objectMapper.writeValueAsString(orderCreatedEvent);
+
+        OrderOutboxEvent outboxEvent = new OrderOutboxEvent(
+                savedOrder.getId(),
+                OrderEvents.OrderCreated,
+                payload
+        );
+
+        orderOutboxEventRepository.save(outboxEvent);
 
         cartClient.clearCart(userId);
 
