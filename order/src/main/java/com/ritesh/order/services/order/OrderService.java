@@ -108,24 +108,33 @@ public class OrderService {
         order.setStatus(OrderStatus.CONFIRMED);
         order.setPlacedOn(LocalDateTime.now());
 
-        Order savedOrder =
-                orderRepository.save(order);
+        // 1. Save the order first
+        Order savedOrder = orderRepository.save(order);
 
-        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(
+// 2. Create the outbox event without its final payload
+        OrderOutboxEvent outboxEvent = new OrderOutboxEvent(
+                savedOrder.getId(),
+                OrderEvents.OrderCreated,
+                "{}"
+        );
+
+// 3. Save it to generate the outbox ID
+        outboxEvent = orderOutboxEventRepository.saveAndFlush(outboxEvent);
+
+// 4. Use the generated outbox ID as the event ID
+        OrderCreatedEvent event = new OrderCreatedEvent(
+                outboxEvent.getId(),
                 savedOrder.getId(),
                 savedOrder.getUserId(),
                 savedOrder.getTotalAmount(),
                 savedOrder.getPlacedOn()
         );
 
-        String payload = objectMapper.writeValueAsString(orderCreatedEvent);
+// 5. Serialize the complete event
+        String payload = objectMapper.writeValueAsString(event);
 
-        OrderOutboxEvent outboxEvent = new OrderOutboxEvent(
-                savedOrder.getId(),
-                OrderEvents.OrderCreated,
-                payload
-        );
-
+// 6. Update the outbox row with the complete payload
+        outboxEvent.setPayload(payload);
         orderOutboxEventRepository.save(outboxEvent);
 
         cartClient.clearCart(userId);
