@@ -22,3 +22,5 @@ spring:
       properties:
         "[spring.json.value.default.type]": com.ritesh.notification.events.OrderCreatedEvent
         "[spring.json.use.type.headers]": false
+    listener:
+      concurrency: 3
