@@ -3,6 +3,7 @@ package com.ritesh.user.services.users;
 import com.ritesh.user.dto.users.user.UserMappers;
 import com.ritesh.user.dto.users.user.UserRequestDTO;
 import com.ritesh.user.dto.users.user.UserResponseDTO;
+import com.ritesh.user.exceptions.AccessDeniedException;
 import com.ritesh.user.exceptions.UserNotFoundException;
 import com.ritesh.user.models.users.User;
 import com.ritesh.user.repository.users.UserRepository;
@@ -30,12 +31,24 @@ public class UserService {
                 .toList();
     }
 
-    public UserResponseDTO getUser(Long id) {
+    public UserResponseDTO getUser(
+            Long id,
+            Jwt jwt,
+            boolean isAdmin) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
-                        new UserNotFoundException("User with id " + id + " not found")
+                        new UserNotFoundException(
+                                "User with id " + id + " not found"
+                        )
                 );
+
+        if (!isAdmin &&
+                !user.getKeycloakUserId().equals(jwt.getSubject())) {
+            throw new AccessDeniedException(
+                    "You are not allowed to access this user's profile"
+            );
+        }
 
         return userMappers.toUserResponseDTO(user);
     }
@@ -51,12 +64,20 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO editUser(Long id, UserRequestDTO request) {
+    public UserResponseDTO editUser(Long id, UserRequestDTO request, Jwt jwt,
+                                    boolean isAdmin) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
                         new UserNotFoundException("User with id " + id + " not found")
                 );
+
+        if (!isAdmin &&
+                !user.getKeycloakUserId().equals(jwt.getSubject())) {
+            throw new AccessDeniedException(
+                    "You are not allowed to edit this profilie"
+            );
+        }
 
         if (request.getFirstName() != null) {
             user.setFirstName(request.getFirstName());
@@ -108,6 +129,7 @@ public class UserService {
         user.setEmail(email);
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
+        user.setContact(request.getContact());
 
         // Retain your entity's default CUSTOMER role.
         User savedUser = userRepository.save(user);

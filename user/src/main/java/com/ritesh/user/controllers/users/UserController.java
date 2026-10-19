@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +31,17 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUser(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt,
+            Authentication authentication) {
+
+        boolean isAdmin = authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_ADMIN"));
 
         return ResponseEntity.ok(
-                userService.getUser(id)
+                userService.getUser(id, jwt, isAdmin)
         );
     }
 
@@ -49,10 +57,18 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UserRequestDTO request) {
+            @Valid @RequestBody UserRequestDTO request,
+            @AuthenticationPrincipal Jwt jwt,
+            Authentication authentication
+    ) {
+
+        boolean isAdmin = authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_ADMIN"));
 
         return ResponseEntity.ok(
-                userService.editUser(id, request)
+                userService.editUser(id, request, jwt, isAdmin)
         );
     }
 

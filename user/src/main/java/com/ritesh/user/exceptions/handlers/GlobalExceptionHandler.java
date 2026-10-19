@@ -1,5 +1,6 @@
 package com.ritesh.user.exceptions.handlers;
 
+import com.ritesh.user.exceptions.AccessDeniedException;
 import com.ritesh.user.exceptions.AddressNotBelongsToUser;
 import com.ritesh.user.exceptions.UserAddressNotFoundException;
 import com.ritesh.user.exceptions.UserNotFoundException;
@@ -82,6 +83,18 @@ public class GlobalExceptionHandler {
         );
         problemDetail.setTitle("User address not found!");
         problemDetail.setProperty("code", "USER_ADDRESS_NOT_FOUND");
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("You are not allowed to check this user!");
+        problemDetail.setProperty("code", "USER_NOT_ALLOWED");
 
         return problemDetail;
     }
