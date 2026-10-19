@@ -1,5 +1,6 @@
 package com.ritesh.product.exceptions.handlers;
 
+import com.ritesh.product.exceptions.AccessDeniedException;
 import com.ritesh.product.exceptions.InsufficientStockException;
 import com.ritesh.product.exceptions.ProductNotFoundException;
 import org.springframework.beans.factory.parsing.Problem;
@@ -32,6 +33,18 @@ public class GlobalExceptionHandler {
 
         return problemDetail;
     }
+
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("You are not allowed to create the product!");
+        problemDetail.setProperty("code", "USER_NOT_ALLOWED");
+
+        return problemDetail;
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationException(
