@@ -1,9 +1,6 @@
 package com.ritesh.order.exceptions.handlers;
 
-import com.ritesh.order.exceptions.CartNotFoundException;
-import com.ritesh.order.exceptions.EmptyCartException;
-import com.ritesh.order.exceptions.OrderNotFoundException;
-import com.ritesh.order.exceptions.UserNotFoundException;
+import com.ritesh.order.exceptions.*;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +18,18 @@ public class GlobalExceptionHandler {
         );
         problemDetail.setTitle("Order not found!");
         problemDetail.setProperty("code", "ORDER_NOT_FOUND");
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("You are not allowed to place this order!");
+        problemDetail.setProperty("code", "USER_NOT_ALLOWED");
 
         return problemDetail;
     }

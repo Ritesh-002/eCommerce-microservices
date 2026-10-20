@@ -11,6 +11,7 @@ import com.ritesh.order.dto.user.UserResponseDTO;
 import com.ritesh.order.enums.OrderEvents;
 import com.ritesh.order.enums.OrderStatus;
 import com.ritesh.order.events.OrderCreatedEvent;
+import com.ritesh.order.exceptions.AccessDeniedException;
 import com.ritesh.order.exceptions.CartNotFoundException;
 import com.ritesh.order.exceptions.EmptyCartException;
 import com.ritesh.order.exceptions.UserNotFoundException;
@@ -20,6 +21,7 @@ import com.ritesh.order.models.order.OrderItem;
 import com.ritesh.order.repository.order.OrderRepository;
 import com.ritesh.order.repository.order.eventRepositories.OrderOutboxEventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
@@ -43,9 +45,9 @@ public class OrderService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public OrderResponseDTO placeOrder(Long userId) {
+    public OrderResponseDTO placeOrder(Long userId, Jwt jwt) {
 
-        UserResponseDTO user = userClient.getUser(userId);
+        UserResponseDTO user = userClient.getUser(userId, jwt);
 
         if (user == null) {
             throw new UserNotFoundException(
@@ -53,7 +55,18 @@ public class OrderService {
             );
         }
 
-        CartResponseDTO cart = cartClient.getCart(userId);
+        // Get the cart owner's Keycloak ID from User Service.
+        String cartOwnerKeycloakId =
+                userClient.getUserKeycloakId(userId, jwt);
+
+        // Ensure the authenticated customer owns this order.
+        if (!jwt.getSubject().equals(cartOwnerKeycloakId)) {
+            throw new AccessDeniedException(
+                    "You are not allowed to place this order"
+            );
+        }
+
+        CartResponseDTO cart = cartClient.getCart(userId, jwt);
 
         if (cart == null) {
             throw new CartNotFoundException(
@@ -78,12 +91,14 @@ public class OrderService {
 
                     productClient.reserveProductQuantity(
                             item.getProductId(),
-                            item.getQty()
+                            item.getQty(),
+                            jwt
                     );
 
                     ProductResponseDTO product =
                             productClient.getProduct(
-                                    item.getProductId()
+                                    item.getProductId(),
+                                    jwt
                             );
 
                     return orderMapper.toOrderItemEntity(
@@ -137,18 +152,29 @@ public class OrderService {
         outboxEvent.setPayload(payload);
         orderOutboxEventRepository.save(outboxEvent);
 
-        cartClient.clearCart(userId);
+        cartClient.clearCart(userId, jwt);
 
         return orderMapper.toOrderResponseDTO(savedOrder);
     }
 
-    public List<OrderResponseDTO> getOrders(Long userId) {
+    public List<OrderResponseDTO> getOrders(Long userId, Jwt jwt) {
 
-        UserResponseDTO user = userClient.getUser(userId);
+        UserResponseDTO user = userClient.getUser(userId, jwt);
 
         if (user == null) {
             throw new UserNotFoundException(
                     "User with id " + userId + " not found"
+            );
+        }
+
+        // Get the cart owner's Keycloak ID from User Service.
+        String cartOwnerKeycloakId =
+                userClient.getUserKeycloakId(userId, jwt);
+
+        // Ensure the authenticated customer owns this cart.
+        if (!jwt.getSubject().equals(cartOwnerKeycloakId)) {
+            throw new AccessDeniedException(
+                    "You are not allowed to access these orders!"
             );
         }
 
