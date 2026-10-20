@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,24 +22,29 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<CartResponseDTO> getUserCart(
-            @PathVariable Long userId) {
+            @PathVariable Long userId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
 
         return ResponseEntity.ok(
-                cartService.getCart(userId)
+                cartService.getCart(userId, jwt)
         );
     }
 
     @PostMapping
     public ResponseEntity<CartItemResponseDTO> addItemToCart(
             @PathVariable Long userId,
-            @Valid @RequestBody CartRequestDTO request) {
+            @Valid @RequestBody CartRequestDTO request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
                         cartService.addToCart(
                                 userId,
-                                request
+                                request,
+                                jwt
                         )
                 );
     }
@@ -46,13 +53,16 @@ public class CartController {
     public ResponseEntity<CartItemResponseDTO> updateQuantity(
             @PathVariable Long userId,
             @PathVariable Long cartItemId,
-            @Valid @RequestBody UpdateCartItemRequestDTO request) {
+            @Valid @RequestBody UpdateCartItemRequestDTO request,
+            @AuthenticationPrincipal Jwt jwt
+            ) {
 
         return ResponseEntity.ok(
                 cartService.changeQuantity(
                         userId,
                         cartItemId,
-                        request.getQty()
+                        request.getQty(),
+                        jwt
                 )
         );
     }
@@ -60,11 +70,14 @@ public class CartController {
     @DeleteMapping("/items/{cartItemId}")
     public ResponseEntity<Void> removeItem(
             @PathVariable Long userId,
-            @PathVariable Long cartItemId) {
+            @PathVariable Long cartItemId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
 
         cartService.removeFromCart(
                 userId,
-                cartItemId
+                cartItemId,
+                jwt
         );
 
         return ResponseEntity.noContent().build();
@@ -72,9 +85,11 @@ public class CartController {
 
     @DeleteMapping
     public ResponseEntity<Void> clearCart(
-            @PathVariable Long userId) {
+            @PathVariable Long userId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
 
-        cartService.deleteCart(userId);
+        cartService.deleteCart(userId, jwt);
 
         return ResponseEntity.noContent().build();
     }

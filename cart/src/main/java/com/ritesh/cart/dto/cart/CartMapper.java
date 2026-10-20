@@ -7,6 +7,7 @@ import com.ritesh.cart.models.cart.Cart;
 import com.ritesh.cart.models.cart.CartItem;
 //import com.ritesh.cart.models.products.Product;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class CartMapper {
 
     private final ProductClient productClient;
 
-    public CartResponseDTO toCartResponseDTO(Cart cart) {
+    public CartResponseDTO toCartResponseDTO(Cart cart, Jwt jwt) {
 
         CartResponseDTO response = new CartResponseDTO();
         response.setId(cart.getId());
@@ -27,7 +28,7 @@ public class CartMapper {
 
         for (CartItem item : cart.getCartItems()) {
 
-            ProductResponseDTO productResponseDTO = productClient.getProduct(item.getProductId());
+            ProductResponseDTO productResponseDTO = productClient.getProduct(item.getProductId(), jwt);
 
             CartItemResponseDTO itemResponse = new CartItemResponseDTO();
 

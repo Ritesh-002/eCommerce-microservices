@@ -1,9 +1,7 @@
 package com.ritesh.cart.exceptions.handlers;
 
-import com.ritesh.cart.exceptions.CartItemNotFoundException;
-import com.ritesh.cart.exceptions.CartItemOwnershipException;
-import com.ritesh.cart.exceptions.CartNotFoundException;
-import com.ritesh.cart.exceptions.ProductNotFoundException;
+import com.ritesh.cart.exceptions.*;
+import com.ritesh.cart.models.cart.Cart;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -52,14 +50,26 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ProblemDetail handleProductNotFound(ProductNotFoundException ex) {
+    @ExceptionHandler(CartNotFoundException.class)
+    public ProblemDetail handleCartNotFound(CartNotFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage()
         );
-        problemDetail.setTitle("Product not found!");
-        problemDetail.setProperty("code", "PRODUCT_NOT_FOUND");
+        problemDetail.setTitle("Cart not found!");
+        problemDetail.setProperty("code", "CART_NOT_FOUND");
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("You are not allowed to access this cart!");
+        problemDetail.setProperty("code", "USER_NOT_ALLOWED");
 
         return problemDetail;
     }

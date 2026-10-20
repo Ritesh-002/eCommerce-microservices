@@ -1,11 +1,13 @@
 package com.ritesh.cart.services.cart;
 
 import com.ritesh.cart.clients.ProductClient;
+import com.ritesh.cart.clients.UserClient;
 import com.ritesh.cart.dto.cart.CartMapper;
 import com.ritesh.cart.dto.cart.CartRequestDTO;
 import com.ritesh.cart.dto.cart.CartResponseDTO;
 import com.ritesh.cart.dto.cart.CartItemResponseDTO;
 import com.ritesh.cart.dto.product.ProductResponseDTO;
+import com.ritesh.cart.exceptions.AccessDeniedException;
 import com.ritesh.cart.exceptions.CartItemNotFoundException;
 import com.ritesh.cart.exceptions.CartNotFoundException;
 import com.ritesh.cart.exceptions.ProductNotFoundException;
@@ -14,6 +16,7 @@ import com.ritesh.cart.models.cart.CartItem;
 import com.ritesh.cart.repository.cart.CartItemRepository;
 import com.ritesh.cart.repository.cart.CartRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +28,10 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
 
     private final ProductClient productClient;
+    private final UserClient userClient;
     private final CartMapper cartMapper;
 
-    public CartResponseDTO getCart(Long userId) {
+    public CartResponseDTO getCart(Long userId, Jwt jwt) {
 
         Cart cart = cartRepository.findCartByUserId(userId);
 
@@ -37,16 +41,28 @@ public class CartService {
             );
         }
 
-        return cartMapper.toCartResponseDTO(cart);
+        // Get the cart owner's Keycloak ID from User Service.
+        String cartOwnerKeycloakId =
+                userClient.getUserKeycloakId(userId, jwt);
+
+        // Ensure the authenticated customer owns this cart.
+        if (!jwt.getSubject().equals(cartOwnerKeycloakId)) {
+            throw new AccessDeniedException(
+                    "You are not allowed to access this cart"
+            );
+        }
+
+        return cartMapper.toCartResponseDTO(cart, jwt);
     }
 
     @Transactional
     public CartItemResponseDTO addToCart(
             Long userId,
-            CartRequestDTO request) {
+            CartRequestDTO request,
+            Jwt jwt) {
 
         ProductResponseDTO product =
-                productClient.getProduct(request.getProductId());
+                productClient.getProduct(request.getProductId(), jwt);
 
         if (product == null) {
             throw new ProductNotFoundException(
@@ -111,7 +127,7 @@ public class CartService {
     }
 
     @Transactional
-    public void deleteCart(Long userId) {
+    public void deleteCart(Long userId, Jwt jwt) {
         Cart cart = cartRepository.findCartByUserId(userId);
 
         if (cart == null) {
@@ -126,7 +142,8 @@ public class CartService {
     @Transactional
     public void removeFromCart(
             Long userId,
-            Long cartItemId) {
+            Long cartItemId,
+            Jwt jwt) {
 
         Cart cart = cartRepository.findCartByUserId(userId);
 
@@ -157,7 +174,8 @@ public class CartService {
     public CartItemResponseDTO changeQuantity(
             Long userId,
             Long cartItemId,
-            Integer qty) {
+            Integer qty,
+            Jwt jwt) {
 
         Cart cart = cartRepository.findCartByUserId(userId);
 
@@ -186,7 +204,8 @@ public class CartService {
 
         ProductResponseDTO product =
                 productClient.getProduct(
-                        updatedItem.getProductId()
+                        updatedItem.getProductId(),
+                        jwt
                 );
 
         return cartMapper.toCartItemResponseDTO(
